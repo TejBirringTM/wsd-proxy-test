@@ -1,0 +1,12 @@
+# Node.js dependencies
+node_modules/
+
+# Transpiled output
+out/
+
+# Temporary files and logs
+tmp/
+*.log
+
+# Unimportant system files
+.DS_Store
