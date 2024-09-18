@@ -8,7 +8,7 @@ Scripts are provided to make certain tasks beyond the scope of the source code e
 
 The `<project root>/scripts` directory holds Bash scripts to emulate proxies on the local machine using Docker.
 
-* `install-proxy-image.sh` installs the Proxy container image from the included tarball – please do not move the tarball!
+* `install-proxy-image.sh` installs the Proxy container image from the tarball (`wsd-proxy-test.tar`) in this directory. The tarball is not included by default and would need to be downloaded and placed in the directory before this script can be used. This is because the Git repository currently does not archive the file; Git LFS could be used in the near future to achieve this.
 
 * `start-proxies.sh <#>` instantiates the said # of proxy containers on the local machine, producing a `proxies.txt` file (of proxy addresses) in the working directory from which the script is called.
 
