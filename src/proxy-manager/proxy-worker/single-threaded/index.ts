@@ -2,18 +2,15 @@ import { createWriteStream } from "node:fs";
 import { ProxyWorker } from "../index.js";
 import { ProxyContext } from "../../types.js";
 import { fatalError } from "../../../helpers/error-handling.js";
-import { defaultRequestHandler } from "../request-handler.js";
 import config from "../../../config.js";
 import { sleep } from "../../../helpers/waiting.js";
 
 export class ConcurrentProxyWorker extends ProxyWorker {
     private readonly outputFilePath;
     private readonly outputFileStream;
-    private readonly requestHandler;
 
     constructor(context: ProxyContext) {
         super(context, false);
-        this.requestHandler = defaultRequestHandler;
         this.outputFilePath = `./tmp/proxy-n-${context.id}.out`;
         this.outputFileStream = createWriteStream(this.outputFilePath, {flags: "w"});
     }

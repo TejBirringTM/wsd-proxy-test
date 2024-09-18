@@ -3,7 +3,17 @@ import { ProxyWorker } from "./proxy-worker/index.js";
 
 export type ProxyBalancerAlgorithm = (proxies: Map<string, ProxyWorker>) => ProxyWorker;
 
-export const defaultProxyBalancerAlgorithm : ProxyBalancerAlgorithm = (proxies) => {
+export default class ProxyBalancer {
+    private readonly algorithm;
+    constructor(algorithm: ProxyBalancerAlgorithm) {
+        this.algorithm = algorithm;
+    }
+    getProxy(proxies: Map<string, ProxyWorker>) {
+        return this.algorithm(proxies);
+    }
+}
+
+const defaultProxyBalancerAlgorithm : ProxyBalancerAlgorithm = (proxies) => {
     // iterate over and select the proxy with the minimum number of *pending* requests;
     // queued requests don't matter because we are only concerned with allocating work to the fastest proxies first
     // (engineered bias towards higher-performance proxies to maximise data throughput)
@@ -23,3 +33,5 @@ export const defaultProxyBalancerAlgorithm : ProxyBalancerAlgorithm = (proxies) 
         return selectedProxy;
     }
 }
+
+export const defaultProxyBalancer = new ProxyBalancer(defaultProxyBalancerAlgorithm);

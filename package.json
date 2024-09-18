@@ -6,7 +6,8 @@
   "scripts": {
     "clean": "rm -rf out",
     "build": "tsc --build",
-    "start": "NODE_ENV=development node ./out/src/index.js",
+    "start:dev": "NODE_ENV=development node ./out/src/index.js",
+    "start:prod": "NODE_ENV=development node ./out/src/index.js",
     "test": "jest"
   },
   "author": "Tej Birring",

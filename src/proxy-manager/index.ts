@@ -1,9 +1,10 @@
 import { debug } from "../helpers/logging.js";
 import { readFile } from "node:fs/promises"
-import { defaultProxyBalancerAlgorithm, ProxyBalancerAlgorithm } from "./proxy-balancer.js";
+import ProxyBalancer, { defaultProxyBalancer } from "./proxy-balancer.js";
 import { ProxyContext } from "./types.js";
 import { ProxyWorker } from "./proxy-worker/index.js";
 import { ConcurrentProxyWorker } from "./proxy-worker/single-threaded/index.js";
+import { fatalError } from "../helpers/error-handling.js";
 
 export type ProxyManagerMode = "concurrent" | "parallel";
 export type WithProxyFunction = (proxyWorker: ProxyWorker)=>void;
@@ -15,11 +16,11 @@ export type WithProxyAsyncFunction = (proxyWorker: ProxyWorker)=>Promise<void>;
 export default class ProxyManager {
     private readonly proxies;
     private readonly nProxies;
-    private readonly proxyBalancerAlgorithm;
+    private readonly proxyBalancer;
 
-    constructor(proxyAddresses: string[], proxyBalancerAlgorithm: ProxyBalancerAlgorithm = defaultProxyBalancerAlgorithm, mode: ProxyManagerMode = "concurrent") {
+    constructor(proxyAddresses: string[], proxyBalancer: ProxyBalancer = defaultProxyBalancer, mode: ProxyManagerMode = "concurrent") {
         // set proxy balancer algorithm
-        this.proxyBalancerAlgorithm = proxyBalancerAlgorithm;
+        this.proxyBalancer = proxyBalancer;
 
         // initialise context for each proxy
         this.proxies = new Map<string, ProxyWorker>();
@@ -35,7 +36,11 @@ export default class ProxyManager {
                     pending: 0
                 }
             } satisfies ProxyContext;
-            this.proxies.set(proxyAddress, new ConcurrentProxyWorker(proxyContext));
+            if (mode === "concurrent") {
+                this.proxies.set(proxyAddress, new ConcurrentProxyWorker(proxyContext));
+            } else {
+                throw fatalError("Proxy Manager does not implement parallel mode yet.")
+            }
             _proxyId++;
         });
 
@@ -46,7 +51,7 @@ export default class ProxyManager {
      * Get the best proxy to send a request to - as determined by the proxy balancer algorithm
      */
     getProxy() {
-        return this.proxyBalancerAlgorithm(this.proxies);
+        return this.proxyBalancer.getProxy(this.proxies);
     }
 
     /**
