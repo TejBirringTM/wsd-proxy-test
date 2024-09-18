@@ -10,3 +10,7 @@ tmp/
 
 # Unimportant system files
 .DS_Store
+
+# Test reports
+coverage/
+
