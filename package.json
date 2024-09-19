@@ -8,15 +8,18 @@
     "build": "tsc --build",
     "start:dev": "NODE_ENV=development node ./out/src/index.js",
     "start:prod": "NODE_ENV=development node ./out/src/index.js",
-    "test": "jest"
+    "test": "jest --verbose=true"
   },
   "author": "Tej Birring",
   "license": "UNLICENSED",
   "description": "",
   "devDependencies": {
+    "@types/chance": "^1.1.6",
     "@types/jest": "^29.5.13",
     "@types/node": "^22.5.4",
+    "chance": "^1.1.12",
     "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
     "typescript": "^5.6.2"
   },
   "dependencies": {
