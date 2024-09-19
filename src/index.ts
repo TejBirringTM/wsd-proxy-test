@@ -5,7 +5,6 @@ import { mkdir, open, rm } from "node:fs/promises";
 import { createProxyManagerFromFile } from "./proxy-manager/index.js";
 import { fatalError, readableError } from "./helpers/error-handling.js";
 import { execSync } from "node:child_process";
-import { error } from "node:console";
 
 const program = new Command()
     .name(pkg.name)
@@ -25,7 +24,8 @@ program.parse();
 function produceOutputFile(outputFilePath: string) {
     try {
         execSync(`cat ./tmp/** > ${outputFilePath}`);
-    } catch (err) {
+        debug(`Output file ready: ${outputFilePath}`);
+    } catch (error) {
         throw fatalError("Failed to produce output file.", {
             error: readableError(error)
         });

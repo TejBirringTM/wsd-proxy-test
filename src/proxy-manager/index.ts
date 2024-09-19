@@ -5,6 +5,7 @@ import { ProxyContext } from "./types.js";
 import { ProxyWorker } from "./proxy-worker/index.js";
 import { ConcurrentProxyWorker } from "./proxy-worker/single-threaded/index.js";
 import { fatalError } from "../helpers/error-handling.js";
+import { defaultRequestHandler, RequestHandler } from "./proxy-worker/request-handler.js";
 
 export type ProxyManagerMode = "concurrent" | "parallel";
 export type WithProxyFunction = (proxyWorker: ProxyWorker)=>void;
@@ -18,7 +19,7 @@ export default class ProxyManager {
     private readonly nProxies;
     private readonly proxyBalancer;
 
-    constructor(proxyAddresses: string[], proxyBalancer: ProxyBalancer = defaultProxyBalancer, mode: ProxyManagerMode = "concurrent") {
+    constructor(proxyAddresses: string[], proxyBalancer: ProxyBalancer = defaultProxyBalancer, requestHandler: RequestHandler = defaultRequestHandler, mode: ProxyManagerMode = "concurrent") {
         // set proxy balancer algorithm
         this.proxyBalancer = proxyBalancer;
 
@@ -37,7 +38,7 @@ export default class ProxyManager {
                 }
             } satisfies ProxyContext;
             if (mode === "concurrent") {
-                this.proxies.set(proxyAddress, new ConcurrentProxyWorker(proxyContext));
+                this.proxies.set(proxyAddress, new ConcurrentProxyWorker(proxyContext, requestHandler));
             } else {
                 throw fatalError("Proxy Manager does not implement parallel mode yet.")
             }
@@ -67,6 +68,14 @@ export default class ProxyManager {
      */    
     async forAllProxiesAsync(fn: WithProxyAsyncFunction) {
         return await Promise.allSettled([...this.proxies.values()].map((proxy)=>fn(proxy)));
+    }
+
+    get numberOfProxies() {
+        return this.nProxies;
+    }
+
+    get proxyAddresses() {
+        return [...this.proxies.values()];
     }
 }
 
