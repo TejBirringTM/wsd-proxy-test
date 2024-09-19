@@ -4,13 +4,13 @@ import { ProxyContext } from "../../types.js";
 import { fatalError } from "../../../helpers/error-handling.js";
 import config from "../../../config.js";
 import { sleep } from "../../../helpers/waiting.js";
-import { defaultRequestHandler, RequestHandler } from "../request-handler.js";
+import { RequestHandler } from "../request-handler.js";
 
 export class ConcurrentProxyWorker extends ProxyWorker {
     private readonly outputFilePath;
     private readonly outputFileStream;
 
-    constructor(context: ProxyContext, requestHandler: RequestHandler = defaultRequestHandler) {
+    constructor(context: ProxyContext, requestHandler: RequestHandler) {
         super(context, false, requestHandler);
         this.outputFilePath = `./tmp/proxy-n-${context.id}.out`;
         this.outputFileStream = createWriteStream(this.outputFilePath, {flags: "w"});

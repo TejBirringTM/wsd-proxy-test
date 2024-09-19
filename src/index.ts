@@ -5,6 +5,8 @@ import { mkdir, open, rm } from "node:fs/promises";
 import { createProxyManagerFromFile } from "./proxy-manager/index.js";
 import { fatalError, readableError } from "./helpers/error-handling.js";
 import { execSync } from "node:child_process";
+import { defaultProxyBalancer } from "./proxy-manager/proxy-balancer.js";
+import { defaultRequestHandler } from "./proxy-manager/proxy-worker/request-handler.js";
 
 const program = new Command()
     .name(pkg.name)
@@ -43,7 +45,7 @@ async function main(inputFileStrings: string, inputFileProxies: string, outputFi
         });
     }
     // create proxy balancer from proxies file:
-    const proxyManager = await createProxyManagerFromFile(inputFileProxies);
+    const proxyManager = await createProxyManagerFromFile(inputFileProxies, defaultProxyBalancer, defaultRequestHandler, "concurrent");
     // create stream to read from strings file:
     const inputFile = await open(inputFileStrings);
 

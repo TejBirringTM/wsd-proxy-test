@@ -1,11 +1,11 @@
 import { debug } from "../helpers/logging.js";
 import { readFile } from "node:fs/promises"
-import ProxyBalancer, { defaultProxyBalancer } from "./proxy-balancer.js";
+import ProxyBalancer from "./proxy-balancer.js";
 import { ProxyContext } from "./types.js";
 import { ProxyWorker } from "./proxy-worker/index.js";
 import { ConcurrentProxyWorker } from "./proxy-worker/single-threaded/index.js";
 import { fatalError } from "../helpers/error-handling.js";
-import { defaultRequestHandler, RequestHandler } from "./proxy-worker/request-handler.js";
+import { RequestHandler } from "./proxy-worker/request-handler.js";
 
 export type ProxyManagerMode = "concurrent" | "parallel";
 export type WithProxyFunction = (proxyWorker: ProxyWorker)=>void;
@@ -19,7 +19,7 @@ export default class ProxyManager {
     private readonly nProxies;
     private readonly proxyBalancer;
 
-    constructor(proxyAddresses: string[], proxyBalancer: ProxyBalancer = defaultProxyBalancer, requestHandler: RequestHandler = defaultRequestHandler, mode: ProxyManagerMode = "concurrent") {
+    constructor(proxyAddresses: string[], proxyBalancer: ProxyBalancer, requestHandler: RequestHandler, mode: ProxyManagerMode) {
         // set proxy balancer algorithm
         this.proxyBalancer = proxyBalancer;
 
@@ -79,10 +79,10 @@ export default class ProxyManager {
     }
 }
 
-export async function createProxyManagerFromFile(proxiesFilePath: string) {
+export async function createProxyManagerFromFile(proxiesFilePath: string, proxyBalancer: ProxyBalancer, requestHandler: RequestHandler, mode: ProxyManagerMode) {
     // parse file for proxy addresses
     const fileContent = (await readFile(proxiesFilePath)).toString();
     const proxyAddresses = fileContent.split("\n").filter((line)=>line.length > 0);
     // create proxy manager for the read proxy addresses
-    return new ProxyManager(proxyAddresses);
+    return new ProxyManager(proxyAddresses, proxyBalancer, requestHandler, mode);
 }
